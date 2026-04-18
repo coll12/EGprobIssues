@@ -1,0 +1,5 @@
+<map id="Train" name="Train">
+<area shape="rect" id="Node000001" title="Represents a train composed of three wagons." alt="" coords="5,317,205,643"/>
+<area shape="rect" id="Node000002" href="$class_wagon.html" title="Represents a single railway wagon." alt="" coords="37,5,174,203"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="106,200,108,301,103,300,105,205"/>
+</map>

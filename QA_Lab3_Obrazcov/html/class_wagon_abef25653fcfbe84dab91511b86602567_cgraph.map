@@ -1,0 +1,5 @@
+<map id="Wagon::display" name="Wagon::display">
+<area shape="rect" id="Node000001" title="Displays wagon information." alt="" coords="5,5,116,32"/>
+<area shape="rect" id="Node000002" href="$class_wagon.html#a22ca79dc815154156615b12fd75778a7" title="Calculates the expected revenue when the wagon is full." alt="" coords="164,5,338,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="116,16,151,18,145,19,116,21"/>
+</map>

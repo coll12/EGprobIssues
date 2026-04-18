@@ -1,0 +1,5 @@
+<map id="Train::display" name="Train::display">
+<area shape="rect" id="Node000001" title="Displays full information about the train." alt="" coords="5,5,105,32"/>
+<area shape="rect" id="Node000002" href="$class_train.html#aed88abba6e48d7665314b119db1796dc" title="Calculates the actual revenue taking into account fill percentages." alt="" coords="153,5,298,32"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="105,16,140,18,134,19,105,21"/>
+</map>
