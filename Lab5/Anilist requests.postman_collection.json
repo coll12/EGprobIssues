@@ -1,0 +1,399 @@
+{
+  "info": {
+    "_postman_id": "3bc669d3-43a8-4ad9-be6f-e0978299366f",
+    "name": "Anilist requests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "54215377",
+    "_collection_link": "https://go.postman.co/collection/54215377-3bc669d3-43a8-4ad9-be6f-e0978299366f?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "checkAuth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "const response = pm.response.json();\r",
+              "pm.test(\"Response contains Viewer data\", function () {\r",
+              "    pm.expect(response.data).to.have.property(\"Viewer\");\r",
+              "    pm.expect(response.data.Viewer).to.have.property(\"id\");\r",
+              "    pm.expect(response.data.Viewer).to.have.property(\"name\");\r",
+              "});\r",
+              "if (response.data && response.data.Viewer) {\r",
+              "    pm.environment.set(\"user_id\", response.data.Viewer.id);\r",
+              "    console.log(\"Authenticated as: \" + response.data.Viewer.name);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"query { Viewer { id name avatar { large } statistics { anime { count } } } }\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get popular anime",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+              "const res = pm.response.json();\r",
+              "pm.test(\"Has media array\", () => {\r",
+              "    pm.expect(res.data.Page.media).to.be.an(\"array\").that.is.not.empty;\r",
+              "});\r",
+              "const first = res.data.Page.media[0];\r",
+              "pm.environment.set(\"media_id\", first.id);\r",
+              "console.log(\"Saved media_id: \" + first.id);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"query ($page: Int, $perPage: Int) { Page(page: $page, perPage: $perPage) { media(type: ANIME, sort: POPULARITY_DESC) { id title { romaji } } } }\",\r\n  \"variables\": {\r\n    \"page\": 1,\r\n    \"perPage\": 5\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get anime by id",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "const response = pm.response.json();\r",
+              "const expectedId = parseInt(pm.environment.get(\"media_id\"));\r",
+              "pm.test(\"Media has title and description\", function () {\r",
+              "    pm.expect(response.data.Media.title).to.have.property(\"romaji\");\r",
+              "    pm.expect(response.data.Media).to.have.property(\"description\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"query ($id: Int) { Media(id: $id) { id title { romaji english } description episodes status averageScore } }\",\r\n  \"variables\": {\r\n    \"id\": 1\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create an entity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "\r",
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "const response = pm.response.json();\r",
+              "pm.test(\"SaveMediaListEntry succeeded\", function () {\r",
+              "    pm.expect(response.data).to.have.property(\"SaveMediaListEntry\");\r",
+              "    pm.expect(response.data.SaveMediaListEntry).to.have.property(\"id\");\r",
+              "    pm.expect(response.data.SaveMediaListEntry).to.have.property(\"status\");\r",
+              "});\r",
+              "const newEntryId = response.data.SaveMediaListEntry.id;\r",
+              "pm.environment.set(\"list_entry_id\", newEntryId);\r",
+              "console.log(\"Created list entry with ID: \" + newEntryId);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"mutation ($mediaId: Int, $status: MediaListStatus) { SaveMediaListEntry(mediaId: $mediaId, status: $status) { id status } }\",\r\n  \"variables\": {\r\n    \"mediaId\": 1,\r\n    \"status\": \"CURRENT\"\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get anime by name",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+              "const res = pm.response.json();\r",
+              "pm.test(\"Search results exist\", () => {\r",
+              "    pm.expect(res.data.Page.media).to.be.an(\"array\").that.is.not.empty;\r",
+              "});\r",
+              "const firstResult = res.data.Page.media[0];\r",
+              "pm.environment.set(\"searched_media_id\", firstResult.id);\r",
+              "console.log(\"Found: \" + firstResult.title.romaji + \" (ID: \" + firstResult.id + \")\");"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"query ($search: String, $perPage: Int) { Page(page: 1, perPage: $perPage) { media(search: $search, type: ANIME) { id title { romaji english } averageScore episodes } } }\",\r\n  \"variables\": {\r\n    \"search\": \"Attack on Titan\",\r\n    \"perPage\": 5\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update anime status",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+              "const res = pm.response.json();\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"mutation ($mediaId: Int, $status: MediaListStatus, $progress: Int) { SaveMediaListEntry(mediaId: $mediaId, status: $status, progress: $progress) { id status progress } }\",\r\n  \"variables\": {\r\n    \"mediaId\": 1,\r\n    \"status\": \"COMPLETED\",\r\n    \"progress\": 26\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Deleate an entity",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "const response = pm.response.json();\r",
+              "pm.test(\"DeleteMediaListEntry succeeded\", function () {\r",
+              "    pm.expect(response.data).to.have.property(\"DeleteMediaListEntry\");\r",
+              "    pm.expect(response.data.DeleteMediaListEntry).to.have.property(\"deleted\");\r",
+              "    pm.expect(response.data.DeleteMediaListEntry.deleted).to.eql(true);\r",
+              "});\r",
+              "pm.environment.unset(\"list_entry_id\");\r",
+              "console.log(\"List entry deleted successfully\");"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"query\": \"mutation ($id: Int) { DeleteMediaListEntry(id: $id) { deleted } }\",\r\n  \"variables\": {\r\n    \"id\": {{list_entry_id}}\r\n  }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}",
+          "host": [
+            "{{base_url}}"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
